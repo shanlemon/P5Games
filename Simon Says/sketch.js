@@ -99,7 +99,6 @@ function mousePressed() {
       (mouseY > buttons[i].pos.y - (buttons[i].r / 2)) &&
       (mouseY < buttons[i].pos.y + (buttons[i].r / 2))) {
       yourOrder.push(i);
-      buttons[i].activate();
     }
   }
   if (order[atm] == yourOrder[atm]) {
