@@ -1,167 +1,189 @@
-var player;
+var ship;
 var bullets = [];
-var enemies = [];
-var level = 1;
+var asteroids = [];
+var fps = 0;
 
 function setup(){
-  createCanvas(600,600);
-  player = new Player();
+  createCanvas(1000,1000);
+  ship = new Ship();
+  frameRate(60);
 
-  spawnEnemies();
+  for(var i = 0; i < 3; i++){
+  asteroids.push(new Asteroid());
+  }
 
 }
 
 function draw(){
   background(51);
-
-  player.update();
-  player.show();
-
-  textSize(25);
-  text(level-1, 100, 50);
-
-  if(enemies.length == 0){
-    spawnEnemies();
-  }
-
-
-  for(var i = bullets.length -1; i > -1; i--){
-
+  fps++;
+  checkBullets();
+  for(var i = bullets.length-1; i > -1; i--){
     bullets[i].update();
     bullets[i].show();
-
-    if(bullets[i].pos.x < 50 || bullets[i].pos.x > width-50 || bullets[i].pos.y < 50 || bullets[i].pos.y > height - 50){
-      console.log("died");
-      bullets.splice(bullets.indexOf(bullets[i]), 1);
-    }
-
   }
 
-  //for(var i =0; i < enemies.length; i++){
-  for (var i = enemies.length - 1; i > -1; i--) {
-    enemies[i].update();
-    enemies[i].show();
-
-    for(var k = 0; k < bullets.length; k++){
-      if(enemies.length > 0){
-        if(dist(
-          enemies[i].pos.x,
-          enemies[i].pos.y,
-          bullets[k].pos.x,
-          bullets[k].pos.y) < 50){
-          enemies.splice(i, 1);
-        }
-    }
-    }
-
-    if(dist(enemies[i].pos.x,
-       enemies[i].pos.y,
-       player.pos.x,
-       player.pos.y) < 50){
-      level = 1;
-      enemies = [];
-      spawnEnemies;
-    }
-  }
-}
-
-
-
-function spawnEnemies(){
-  var amount = level * 5;
-  level++;
-   for(var i = 0; i < amount; i++){
-     enemies.push(new Enemy(player));
-   }
-}
-
-
-function findEnemyPos(){
-  var randomNum = floor(random(4));
-  switch(randomNum){
-    case 0: //(top: (random, 0))
-      return createVector(random(width), 0);
-      break;
-
-    case 1: //(right: (width, random))
-      return createVector(width, random(height));
-      break;
-
-    case 2:
-      return createVector(random(width), height);
-      break;
-
-    case 3:
-      return createVector(0, random(height));
-      break;
-    default:
-      return createVector(0,0);
-  }
-}
-
-
-function Enemy(p){
-
-  this.pos = findEnemyPos();
-  this.r = 50;
-  this.speed = 2;
-  this.cosA = cos(atan2(this.pos.y-height/2, this.pos.x-width/2));
-  this.sinA = sin(atan2(this.pos.y-height/2, this.pos.x-width/2));
-
-  this.update = function(){
-    this.pos.x -= this.cosA * this.speed;
-    this.pos.y -= this.sinA * this.speed;
-
+  for(var i = asteroids.length-1; i > -1; i--){
+    asteroids[i].update();
+    asteroids[i].show();
   }
 
-  this.show = function(){
-    fill(255);
-    ellipse(this.pos.x, this.pos.y, this.r, this.r);
-  }
+  ship.update();
+  ship.show();
+  handleKeys();
+
 
 
 }
 
+function checkBullets(){
+  console.log(bullets.length);
+  for(var i = bullets.length-1; i >= 0; i--){
+  if(bullets[i].pos.x > width + 100){
+    bullets.splice(i, 1);
+  }else if(bullets[i].pos.x < 0 - 100){
+    bullets.splice(i, 1);
+  }else if(bullets[i].pos.y > height + 100){
+    bullets.splice(i, 1);
+  }else if(bullets[i].pos.y < 0 -100){
+    bullets.splice(i, 1);
+    }
+  }
+}
 
-function Player(){
-  this.r = 100;
+function handleKeys(){
+  var turnSpeed = 5;
+// console.log(keyCode);
+  if(keyIsDown(UP_ARROW)){
+    //ship.angle = atan2(mouseY - ship.pos.y, mouseX - ship.pos.x);
+    ship.acc = p5.Vector.fromAngle(radians(ship.angle));
+    ship.vel.add(ship.acc);
+  }
+  if(keyIsDown(LEFT_ARROW)){
+    ship.angle -= turnSpeed;
+    if(ship.angle < 0){
+      ship.angle = 360;
+    }
+  }
 
+  if(keyIsDown(RIGHT_ARROW)){
+    ship.angle += turnSpeed;
+    if(ship.angle > 360){
+      ship.angle = 0;
+    }
+  }
+  if(keyIsDown(32)){
+    console.log("hit");
+      if(fps > 5){
+      bullets.push(new Bullet());
+      fps = 0;
+    }
+  }
+}
+
+function Ship(){
   this.pos = createVector(width/2, height/2);
-
-
+  this.vel = createVector(0,0);
+  this.acc = 0;
+  this.scl = 25;
+  this.angle = 0;
   this.update = function(){
-    this.angle = atan2(mouseY-height/2, mouseX-width/2);
-    this.pointer = createVector(cos(this.angle)*this.r/2, sin(this.angle) * this.r/2);
+    this.vel.mult(.99);
+    this.pos.add(this.vel);
+
+    if(this.pos.x > width + this.scl){
+      this.pos.x = 0;
+    }else if(this.pos.x < 0 - this.scl){
+      this.pos.x = width + this.scl;
+    }
+    if(this.pos.y > height + this.scl){
+      this.pos.y = 0;
+    }else if(this.pos.y < 0 - this.scl){
+      this.pos.y = height + this.scl;
+    }
+
   }
 
   this.show = function(){
+    push();
+    noStroke();
     fill(255);
-    ellipse(this.pos.x, this.pos.y, this.r, this.r);
-    line(this.pos.x, this.pos.y, this.pointer.x + this.pos.x, this.pointer.y + this.pos.y);
-
+    rectMode(CENTER);
+    translate(this.pos.x, this.pos.y);
+    rotate(radians(ship.angle) + PI/2);
+    triangle(-this.scl, this.scl, 0 , -this.scl, this.scl, this.scl);
+    fill(color(255,0,0));
+    triangle(-this.scl/2, this.scl/2, 0 , -this.scl/2, this.scl/2, this.scl/2)
+    pop();
+    strokeWeight(10);
+    fill(color(255,0,0));
   }
 
 }
 
-function Bullet(p){
-  this.index = bullets.length;
-  this.pos = createVector(p.pointer.x + p.pos.x, p.pointer.y + p.pos.y);
-  this.scl = 10;
-  this.speed = 10;
-  this.cosA = cos(p.angle);
-  this.sinA = sin(p.angle);
+function Bullet(){
+  this.r = 10;
+  this.pos = createVector(ship.pos.x, ship.pos.y);
+  this.angle = ship.angle;
+  this.vel = createVector(0,0);
+  this.acc = p5.Vector.fromAngle(radians(this.angle));
+
 
   this.update = function(){
-    this.pos.x += this.cosA * this.speed;
-    this.pos.y += this.sinA * this.speed;
-
+    this.pos.add(this.vel);
+    this.vel.add(this.acc);
   }
+
   this.show = function(){
     fill(color(255,0,0));
-    ellipse(this.pos.x, this.pos.y, this.scl, this.scl);
+    noStroke();
+    ellipse(this.pos.x, this.pos.y, this.r, this.r);
   }
-}
+  }
 
-function mousePressed(){
-  bullets.push(new Bullet(player));
+  function Asteroid(){
+    this.r = 50;
+    this.rA = [];
+    this.vertex = random(3,15);
+    for(var i = 0 ; i < this.vertex; i++){
+      this.rA[i] = random(this.r / 2, this.r);
+    }
+
+    this.speed = random(5,10);
+    this.pos = createVector(random(0,width),random(0,height));
+    this.vel = createVector(random(-1,1) * this.speed,random(-1,1) * this.speed );
+    console.log(this.scl);
+
+    this.update = function(){
+      this.pos.add(this.vel);
+
+
+      if(this.pos.x > width + this.r){
+        this.pos.x = 0;
+      }else if(this.pos.x < 0 - this.r){
+        this.pos.x = width + this.r;
+      }
+      if(this.pos.y > height + this.r){
+        this.pos.y = 0;
+      }else if(this.pos.y < 0 - this.r){
+        this.pos.y = height + this.r;
+      }
+
+    }
+
+    this.show = function(){
+      noFill();
+      stroke(255);
+      strokeWeight(3);
+      beginShape();
+      for(var i = 0; i < this.vertex; i++){
+        var angle = map(i, 0, this.vertex, 0 , TWO_PI);
+        var x = cos(angle) * this.rA[i];
+        var y = sin(angle) * this.rA[i];
+        vertex(x + this.pos.x,y + this.pos.y );
+      }
+      endShape(CLOSE);
+
+    }
+
 }
