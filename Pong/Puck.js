@@ -20,7 +20,7 @@
       if(y < paddle.y + paddle.h/2 && y > paddle.y - paddle.h/2 && x - r < paddle.x + paddle.w/2){
         if(x > paddle.x){
             var diff = y - (paddle.y - paddle.h/2);
-            var rad = radians(45);
+            var rad = radians(15);
             var angle = map(diff, 0, paddle.h, -rad, rad);
             xspeed = 5 * cos(angle);
             yspeed = 5 * sin(angle);
@@ -34,7 +34,7 @@
       if(y < paddle.y + paddle.h/2 && y > paddle.y - paddle.h/2 && x + r > paddle.x - paddle.w/2){
         if(x < paddle.x){
           var diff = y - (paddle.y - paddle.h/2);
-          var rad = radians(135);
+          var rad = radians(165);
           var angle = map(diff, 0, paddle.h, -rad, rad);
           xspeed = 5 * cos(angle);
           yspeed = 5 * sin(angle);

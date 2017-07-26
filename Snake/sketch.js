@@ -4,7 +4,8 @@ var food;
 var score  =0;
 
 function setup(){
-  createCanvas(500,500);
+  var canvas = createCanvas(500, 500);
+  canvas.parent('sketchHolder');
   snake = new Snake();
   pickLocation();
   frameRate(15);
@@ -23,6 +24,7 @@ function draw(){
 
 }
 
+
 function Snake(){
   this.x = 0;
   this.y = 0;
@@ -34,16 +36,16 @@ function Snake(){
 
   this.update = function(){
     if(this.x < 0){
-      this.x = this.scl;
+      this.x = width / scl;
     }
-    if(this.x > this.scl){
-      this.x = 0;
+    if(this.x > width/ scl){
+      this.x = -1;
     }
     if(this.y < 0){
-      this.y = height/this.scl;
+      this.y = height/scl;
     }
-    if(this.y> this.scl){
-      this.y = 0;
+    if(this.y> height/scl){
+      this.y = -1;
     }
 
     this.x+= this.xV;
