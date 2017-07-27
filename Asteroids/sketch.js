@@ -6,7 +6,8 @@ var gameOver = false;
 var score = 0;
 
 function setup(){
-  createCanvas(600,600);
+  var canvas = createCanvas(640, 480);
+  canvas.parent('sketchHolder');
   ship = new Ship();
   frameRate(60);
 
