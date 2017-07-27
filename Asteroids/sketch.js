@@ -2,21 +2,39 @@ var ship;
 var bullets = [];
 var asteroids = [];
 var fps = 0;
+var gameOver = false;
+var score = 0;
 
 function setup(){
-  createCanvas(1000,1000);
+  createCanvas(600,600);
   ship = new Ship();
   frameRate(60);
 
   for(var i = 0; i < 3; i++){
-  asteroids.push(new Asteroid());
+  asteroids.push(new Asteroid(false, 50));
   }
 
 }
 
 function draw(){
+  if(gameOver){
+    textSize(25);
+    strokeWeight(2);
+    text("Game Over, Your Highscore was: " + score + "\nPress F5 to Restart", 70, 100);
+  }else{
   background(51);
   fps++;
+
+  strokeWeight(2);
+  textSize(50);
+  text(score, 10, 50);
+
+
+
+  if(asteroids.length < 4){
+    asteroids.push(new Asteroid(false, 50));
+  }
+
   checkBullets();
   for(var i = bullets.length-1; i > -1; i--){
     bullets[i].update();
@@ -26,6 +44,15 @@ function draw(){
   for(var i = asteroids.length-1; i > -1; i--){
     asteroids[i].update();
     asteroids[i].show();
+    for(var k = bullets.length-1; k > -1; k--){
+      if(dist(asteroids[i].pos.x, asteroids[i].pos.y, bullets[k].pos.x, bullets[k].pos.y) < asteroids[i].r){
+        asteroids.push(new Asteroid(true, asteroids[i].r /2, createVector(asteroids[i].pos.x, asteroids[i].pos.y)));
+        asteroids.push(new Asteroid(true, asteroids[i].r /2, createVector(asteroids[i].pos.x, asteroids[i].pos.y)));
+        bullets.splice(k, 1);
+        asteroids.splice(i, 1);
+        score++;
+      }
+    }
   }
 
   ship.update();
@@ -33,7 +60,7 @@ function draw(){
   handleKeys();
 
 
-
+  }
 }
 
 function checkBullets(){
@@ -47,6 +74,14 @@ function checkBullets(){
     bullets.splice(i, 1);
   }else if(bullets[i].pos.y < 0 -100){
     bullets.splice(i, 1);
+    }
+  }
+  for(var i = asteroids.length-1; i > -1; i--){
+    if(dist(ship.pos.x, ship.pos.y, asteroids[i].pos.x,asteroids[i].pos.y) < asteroids[i].r){
+      gameOver = true;
+    }
+    if(asteroids[i].r < 15){
+      asteroids.splice(i, 1);
     }
   }
 }
@@ -141,23 +176,30 @@ function Bullet(){
   }
   }
 
-  function Asteroid(){
-    this.r = 50;
+  function Asteroid(spawned, radius, pos){
+
+    if(!spawned){
+      this.r = 35;
+      this.pos = createVector(random(0,width),random(0,height));
+    }else{
+      if(radius < 10){
+        this.r = 1;
+      }
+      this.pos = pos;
+      this.r = radius;
+    }
     this.rA = [];
     this.vertex = random(3,15);
     for(var i = 0 ; i < this.vertex; i++){
       this.rA[i] = random(this.r / 2, this.r);
     }
 
-    this.speed = random(5,10);
-    this.pos = createVector(random(0,width),random(0,height));
+    this.speed = random(2,7);
     this.vel = createVector(random(-1,1) * this.speed,random(-1,1) * this.speed );
     console.log(this.scl);
 
     this.update = function(){
       this.pos.add(this.vel);
-
-
       if(this.pos.x > width + this.r){
         this.pos.x = 0;
       }else if(this.pos.x < 0 - this.r){
@@ -168,7 +210,6 @@ function Bullet(){
       }else if(this.pos.y < 0 - this.r){
         this.pos.y = height + this.r;
       }
-
     }
 
     this.show = function(){
