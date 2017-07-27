@@ -6,7 +6,8 @@ var leftScore = 0;
 var rightScore = 0;
 
 function setup() {
-  createCanvas(640, 480);
+  var canvas = createCanvas(640, 480);
+  canvas.parent('sketchHolder');
   puck = new Puck();
   leftPaddle = new Paddle(true);
   rightPaddle = new Paddle(false);
