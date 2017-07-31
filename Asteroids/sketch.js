@@ -93,6 +93,7 @@ function handleKeys(){
   if(keyIsDown(UP_ARROW)){
     //ship.angle = atan2(mouseY - ship.pos.y, mouseX - ship.pos.x);
     ship.acc = p5.Vector.fromAngle(radians(ship.angle));
+    ship.acc.mult(.4);
     ship.vel.add(ship.acc);
   }
   if(keyIsDown(LEFT_ARROW)){
