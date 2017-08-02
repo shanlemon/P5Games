@@ -20,6 +20,18 @@ function setup(){
 
   pipes.push(new Pipe());
 
+  var config = {
+    apiKey: "AIzaSyCe9BVL8x5UueAQl8NhSYywxElQ5yYEFZc",
+    authDomain: "p5games-6204a.firebaseapp.com",
+    databaseURL: "https://p5games-6204a.firebaseio.com",
+    projectId: "p5games-6204a",
+    storageBucket: "",
+    messagingSenderId: "954367592379"
+  };
+  firebase.initializeApp(config);
+  var database = firebase.database();
+
+
 }
 
 function keyPressed(){
@@ -34,12 +46,7 @@ function draw(){
   background(51);
   frame++;
 
-  if(isDead){
-    textSize(20);
-    text("Score: " + score + " \nPress F5 To Restart", 100, 50);
-  }else{
-    textSize(50);
-    text(score, 25, 50);
+
 
   if(frame > spawnRate * 60){
     pipes.push(new Pipe());
@@ -75,7 +82,15 @@ function draw(){
   //Draw
   fill(color(255,255,0));
   ellipse(bird.x, bird.y, birdRadius, birdRadius);
+
+  if(isDead){
+    textSize(20);
+    text("Score: " + score + " \nPress F5 To Restart", 120, 50);
+  }else{
+    textSize(50);
+    text(score, 25, 50);
   }
+
 }
 
 function Pipe(){
@@ -88,17 +103,18 @@ function Pipe(){
   this.scored = false;
 
   this.update = function(){
+    if(!isDead)
     this.pos.x -= this.speed;
 
-    if((bird.x  > this.pos.x && bird.x < this.pos.x + this.r && bird.y  > this.pos.y && bird.y  < this.length.x)
-      || (bird.x  > this.pos.x && bird.x < this.pos.x + this.r && bird.y > this.length.x + this.space && bird.y  < this.pos.y+height)){
+    if((bird.x  > this.pos.x - this.r/2 && bird.x < this.pos.x + this.r && bird.y  > this.pos.y && bird.y  < this.length.x)
+      || (bird.x  > this.pos.x - this.r/2&& bird.x < this.pos.x + this.r && bird.y > this.length.x + this.space && bird.y  < this.pos.y+height)){
       isDead = true;
     }
 
     if(bird.x > this.pos.x
       && bird.y > this.pos.y
       && bird.y < this.length.x + this.space){
-        if(!this.scored){
+        if(!this.scored && !isDead){
           score++;
           this.scored = true;
         }
