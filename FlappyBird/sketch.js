@@ -46,9 +46,8 @@ function draw(){
   background(51);
   frame++;
 
-
-
   if(frame > spawnRate * 60){
+    if(!isDead)
     pipes.push(new Pipe());
     frame = 0;
   }
@@ -98,17 +97,21 @@ function Pipe(){
   this.r = 25;
   this.top = random(0, height - this.space);
   this.length = createVector(this.top, height - (this.top + this.space));
-  this.pos = createVector(width, 0);
+  this.pos = createVector(width - this.r, 0);
   this.speed = 3
   this.scored = false;
+  this.color = color(255,0,0);
 
   this.update = function(){
     if(!isDead)
     this.pos.x -= this.speed;
 
-    if((bird.x  > this.pos.x - this.r/2 && bird.x < this.pos.x + this.r && bird.y  > this.pos.y && bird.y  < this.length.x)
-      || (bird.x  > this.pos.x - this.r/2&& bird.x < this.pos.x + this.r && bird.y > this.length.x + this.space && bird.y  < this.pos.y+height)){
+    if((bird.x  > this.pos.x - this.r/2 && bird.x < this.pos.x + this.r && bird.y  > this.pos.y  && bird.y  < this.length.x + birdRadius/2)
+      || (bird.x  > this.pos.x - this.r/2&& bird.x < this.pos.x + this.r && bird.y > this.length.x + this.space -birdRadius/2 && bird.y  < this.pos.y+height)){
+      this.color = color(0,255,0);
       isDead = true;
+    }else{
+      this.color = color(255,0,0);
     }
 
     if(bird.x > this.pos.x
@@ -123,7 +126,7 @@ function Pipe(){
   }
 
   this.show = function(){
-    fill(color(255,0,0));
+    fill(this.color);
     rect(this.pos.x, this.pos.y, this.r, this.length.x);
     rect(this.pos.x , this.pos.y + height, this.r, -this.length.y);
   }
